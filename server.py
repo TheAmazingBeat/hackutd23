@@ -6,8 +6,8 @@ import random
 import os
 from dotenv import load_dotenv
 import openai
-
 app = Flask(__name__)
+
 
 UPLOAD_FOLDER = './images'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -89,9 +89,13 @@ def getAPICall():
         max_tokens = 1000,
         temperature = 1
     )
+    result = []
     for choice in completion.choices:
         text = choice.text.replace('\n', '')
         print(choice.text)
+        result.append(text)
+    
+    return jsonify({"result": result})
 
 
 if __name__ == "__main__":
