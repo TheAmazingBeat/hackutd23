@@ -1,5 +1,16 @@
 <script lang="ts">
-  export let name: string
+  
+    async function callOpenAI() {
+          const response = await fetch('/api/openai-call', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({}),
+          });
+          const data = await response.json();
+          console.log(data.result); // Handle the API response as needed
+      }
 </script>
 
 <main>
@@ -16,6 +27,8 @@
         <input type="text" />
       </div>
     </form>
+  
+  <button on:click={callOpenAI}>Call OpenAI</button>
   </div>
 </main>
 
