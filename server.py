@@ -16,18 +16,19 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
-is_Residential = True
-num_Bathrooms = 3
-num_Bedrooms = 4
+is_Residential = False
 sq_Feet = 2500
 location = "Garland, TX"
 age = 24
+store_Type = ""
 prompt = ''
 
 # Path for our main Svelte page
 @app.route("/")
 def base():
     return send_from_directory('client/public', 'index.html')
+
+    
 
 # Path for all the static files (compiled JS/CSS, etc.)
 @app.route("/<path:path>")
@@ -59,7 +60,8 @@ def upload_file():
         # check if the post request has the file part
         
         if 'file' not in request.files:
-            flash('No file given')
+            # flash('No file given')
+            print('No file given')
             return redirect(request.url)
         
         file = request.files['file']
@@ -67,20 +69,21 @@ def upload_file():
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == '':
-            flash('No selected file')
+            # flash('No selected file')
+            print('No selected file')
             return redirect(request.url)
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            print(file_path)
             file.save(file_path)
             
+            # use models here
             result = analyze_image(file_path)
             print(result)
             return jsonify(result)
-            # use models here
-            
-            return redirect("/")
+
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -90,24 +93,66 @@ def upload_file():
       <input type=submit value=Upload>
     </form>
     '''
+
+@app.route('/api/analyze', methods=['POST'])    
+def analyze_images():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        
+        if 'file' not in request.files:
+            # flash('No file given')
+            print('No file given')
+            return redirect(request.url)
+        
+        file = request.files['file']
+
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            # flash('No selected file')
+            print('No selected file')
+            return redirect(request.url)
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            print(file_path)
+            file.save(file_path)
+            
+            # use models here
+            result = analyze_image(file_path)
+            print(result)
+            
+            global age
+            age = request.form.get('age')
+            global sq_Feet 
+            sq_Feet = request.form.get('size')
+            global location 
+            location = request.form.get('location')
+            global store_Type 
+            store_Type = result[0]['answer']
+            
+            return jsonify(result)
+
+
 app.add_url_rule(
     "/api/upload", endpoint="download_file", build_only=True
 )
 
-if(is_Residential):
-    prompt = "Make a professional value proposition given these parameters: number of bathrooms: " + str(num_Bathrooms) + ", num of bedrooms: " + str(num_Bedrooms) + ", total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
-else:
-    prompt = prompt = "Make a detailed value proposition given these parameters: commercial building, total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
-
-print(prompt)
-
 @app.route('/api/openai-call', methods=['POST'])
 def getAPICall():
+    if(is_Residential):
+        prompt = "Make a detailed value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
+    else:
+        prompt = prompt = "Make a detailed value proposition given these parameters: type of building: " + str(store_Type) + ", total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
+
+    print(prompt)
+
 
     completion = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt = prompt,
-        max_tokens = 1000,
+        max_tokens = 500,
         temperature = 1
     )
     result = []
