@@ -1,6 +1,7 @@
 <script lang="ts">
   import Dropzone from 'svelte-file-dropzone/Dropzone.svelte'
-  let currImage: string | ArrayBuffer, fileInput
+  import PopupButton from './PopupButton.svelte'
+  let currImage: string, fileInput
   let ageInput: HTMLInputElement, zipInput: string
 
   let files = {
@@ -12,57 +13,41 @@
     const { acceptedFiles, fileRejections } = e.detail
     files.accepted = [...files.accepted, ...acceptedFiles]
     files.rejected = [...files.rejected, ...fileRejections]
-    console.log(files.accepted, files.rejected)
-  }
+    // console.log(files.accepted, files.rejected)
 
-  const onFileSelected = (e) => {
-    let image = e.target.files[0]
+    // updates the image preview
+    let image = files.accepted[files.accepted.length - 1]
     let reader = new FileReader()
     reader.readAsDataURL(image)
     reader.onload = (e) => {
-      currImage = e.target.result
+      currImage = e.target.result as string
     }
   }
 </script>
 
+<PopupButton />
+
 <main>
-  <form action="/success" method="POST" enctype="multipart/form-data">
-    <!-- <button
-    >
-      Upload an image of property
-    </button> -->
+  <form action="/api/upload" method="POST" enctype="multipart/form-data">
     {#if currImage}
-      <img src={currImage} alt="uploaded image" />
+      <img width="128" src={currImage} alt="Real Estate Property" />
     {:else}
-      <img
-        width="128"
-        class="avatar"
-        src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-alt-512.png"
-        alt=""
-      />
+      <img width="128" class="avatar" src="/building_icon.png" alt="" />
     {/if}
-    <div id="uploadImageContainer">
-      <input
-        style="display: none"
-        type="file"
-        accept=".jpg, .jpeg, .png"
-        on:change={(e) => onFileSelected(e)}
-        name="fileInput"
-        bind:this={fileInput}
-      />
-    </div>
 
     <Dropzone
       containerClasses={'dropzone'}
+      containerStyles={'background:none;'}
       on:drop={handleFilesSelect}
       accept={'.jpg, .jpeg, .png'}
       disableDefaultStyles={true}
+      inputElement={fileInput}
     />
 
-    <div id="otherFieldsContainer">
+    <!-- <div id="otherFieldsContainer">
       <input type="number" placeholder="Age of Property" bind:this={ageInput} />
       <input type="text" placeholder="Zip Code" />
-    </div>
+    </div> -->
 
     <div id="submitContainer">
       <input type="submit" value="Upload" />
@@ -75,19 +60,9 @@
     text-align: center;
   }
 
-  #uploadImageArea {
-    background: none;
-    color: #ddd;
-    border: 0.25rem dashed #ddd;
-    border-radius: 5px;
-    width: 100%;
-    height: 5rem;
-    cursor: pointer;
-  }
-
   .dropzone {
-    background: none;
-    color: #ddd;
+    /* background: none !important;
+    color: #333 !important; */
     border: 0.25rem dashed #ddd;
     border-radius: 5px;
     width: 100%;
