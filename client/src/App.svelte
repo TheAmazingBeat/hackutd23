@@ -15,8 +15,8 @@
 </script>
 
 <main>
-  <h2>Value Proposition Generator</h2>
   <div class="container">
+  <h2>Value Proposition Generator</h2>
     <!-- <button on:click={callOpenAI}>Call OpenAI</button> -->
 
     <MainForm />

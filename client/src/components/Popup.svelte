@@ -45,3 +45,9 @@
     </footer>
   </article>
 </dialog>
+
+<style>
+article{
+  text-align: left !important;
+}
+</style>
