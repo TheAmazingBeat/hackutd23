@@ -15,6 +15,7 @@
 </script>
 
 <main>
+  <h2>Value Proposition Generator</h2>
   <div class="container">
     <!-- <button on:click={callOpenAI}>Call OpenAI</button> -->
 
@@ -25,6 +26,7 @@
 <style>
   main {
     padding: 0;
+    text-align: center;
   }
   .container {
     display: flex;

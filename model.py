@@ -16,16 +16,16 @@ login(token="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")
 
 print(os.path.join('models', 'CommercialResidentialF.h5'))
 # new_model = tf.keras.models.load_model(os.path.join('models', 'CommercialResidentialF.h5'))
-new_model = load_model(os.path.join('models', 'CommercialResidentialF.h5'))
-#input image file
-img = cv2.imread('BN-JJ952_0715pl_ER_20150715101738.jpg')
-resize = tf.image.resize(img, (256,256))
-yhatnew = new_model.predict(np.expand_dims(resize/255,0))
-print(yhatnew)
-if yhatnew > 0.5:
-    print(f'Predicted estate is residential')
-else:
-    print(f'Predicted estate is commercial')
+# new_model = load_model(os.path.join('models', 'CommercialResidentialF.h5'))
+# #input image file
+# img = cv2.imread('BN-JJ952_0715pl_ER_20150715101738.jpg')
+# resize = tf.image.resize(img, (256,256))
+# yhatnew = new_model.predict(np.expand_dims(resize/255,0))
+# print(yhatnew)
+# if yhatnew > 0.5:
+#     print(f'Predicted estate is residential')
+# else:
+#     print(f'Predicted estate is commercial')
 
 # Show the model architecture
 # new_model.summary()

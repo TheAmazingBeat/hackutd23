@@ -5,7 +5,7 @@ from fileinput import filename
 import random
 import os
 from dotenv import load_dotenv
-# from model import analyze_image, classify_image
+from model import analyze_image, classify_image
 import openai
 app = Flask(__name__)
 
@@ -26,6 +26,8 @@ prompt = ''
 @app.route("/")
 def base():
     return send_from_directory('client/public', 'index.html')
+
+    
 
 # Path for all the static files (compiled JS/CSS, etc.)
 @app.route("/<path:path>")
@@ -119,6 +121,14 @@ def analyze_images():
             # use models here
             result = analyze_image(file_path)
             print(result)
+            
+            global age
+            age = request.form.get('age')
+            global sq_Feet 
+            sq_Feet = request.form.get('size')
+            global location 
+            location = request.form.get('location')
+            
             return jsonify(result)
 
 
@@ -126,15 +136,15 @@ app.add_url_rule(
     "/api/upload", endpoint="download_file", build_only=True
 )
 
-if(is_Residential):
-    prompt = "Make a professional value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
-else:
-    prompt = prompt = "Make a detailed value proposition given these parameters: commercial building, total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
-
-print(prompt)
-
 @app.route('/api/openai-call', methods=['POST'])
 def getAPICall():
+    if(is_Residential):
+        prompt = "Make a professional value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
+    else:
+        prompt = prompt = "Make a detailed value proposition given these parameters: commercial building, total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
+
+    print(prompt)
+
 
     completion = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",

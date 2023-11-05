@@ -1,16 +1,15 @@
 <script lang="ts">
   // import Dropzone from 'svelte-file-dropzone/Dropzone.svelte'
+  import { append } from 'svelte/internal'
+  import { isModalOpen, openModal, closeModal } from '../lib/modal'
   import PopupButton from './PopupButton.svelte'
+  import Popup from './Popup.svelte'
   let currImage: string, fileInput
   let ageInput: HTMLInputElement,
-    zipInput: HTMLInputElement,
+    cityInput: HTMLInputElement,
     sq_feetInput: HTMLInputElement
 
-  let buttonPressed = false
-
-  function pressFirstButton() {
-    buttonPressed = true
-  }
+  let result: string = ''
 
   // let files = {
   //   accepted: [],
@@ -42,7 +41,29 @@
     }
   }
 
-  let location = ' '
+  async function callOpenAI(e) {
+    const response = await fetch('/api/openai-call', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    })
+    const data = await response.json()
+    console.log(data.result) // Handle the API response as needed
+    result = data.result
+    await toggleModal(e)
+  }
+
+  async function toggleModal(event) {
+    event.preventDefault()
+    const modal = document.getElementById(
+      event.target.getAttribute('data-target')
+    )
+    typeof modal != 'undefined' && modal != null && isModalOpen(modal)
+      ? closeModal(modal)
+      : openModal(modal)
+  }
 </script>
 
 <main>
@@ -59,6 +80,29 @@
     name="file"
     on:change={(e) => onFileSelected(e)}
     bind:this={fileInput}
+  />
+
+  <input
+    type="number"
+    min="0"
+    name="age"
+    bind:this={ageInput}
+    placeholder="Age of Property"
+  />
+
+  <input
+    type="text"
+    name="location"
+    bind:this={cityInput}
+    placeholder="City, State"
+  />
+
+  <input
+    type="number"
+    min="0"
+    name="size"
+    bind:this={sq_feetInput}
+    placeholder="Size in Sqft"
   />
 
   <!-- <button id="uploadImageArea" type="button" on:click={fileInput.click()}>
@@ -82,10 +126,13 @@
   <div id="submitContainer">
     <!-- <input type="submit" value="Upload" /> -->
     <button
-      on:click={async () => {
+      data-target="modal-example"
+      on:click={async (e) => {
         const formData = new FormData()
         formData.append('file', fileInput.files[0])
-        pressFirstButton()
+        formData.append('age', ageInput.value)
+        formData.append('location', cityInput.value)
+        formData.append('size', sq_feetInput.value)
         try {
           const response = await fetch('/api/analyze', {
             method: 'POST',
@@ -94,6 +141,7 @@
 
           if (response.ok) {
             // Handle a successful response here
+            callOpenAI(e)
           } else {
             // Handle an error response here
             console.error('Error:', response.statusText)
@@ -103,13 +151,15 @@
         }
       }}
     >
-      Upload
+      Generate
     </button>
   </div>
   <!-- </form> -->
-</main>
 
-<PopupButton />
+  <Popup {result} />
+
+  <!-- <PopupButton /> -->
+</main>
 
 <style>
   form {
