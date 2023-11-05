@@ -12,14 +12,18 @@ app = Flask(__name__)
 
 UPLOAD_FOLDER = './images'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 is_Residential = False
+is_Residential = False
 sq_Feet = 2500
 location = "Garland, TX"
+location = "Garland, TX"
 age = 24
+store_Type = ""
 store_Type = ""
 prompt = ''
 
@@ -47,34 +51,61 @@ def sample_analyze1():
 def sample_analyze2():
     return jsonify(analyze_image("images/Commercial-Ext1.jpeg"))
 
+@app.route("/api/sample-analyze1", methods=['GET'])
+def sample_analyze1():
+    return jsonify(classify_image("images/Residential-Ext1.jpeg"))
+
+@app.route("/api/sample-analyze2", methods=['GET'])
+def sample_analyze2():
+    return jsonify(analyze_image("images/Commercial-Ext1.jpeg"))
+
 # Import image from file
 
+# returns true or false whether file is of correct file type
 # returns true or false whether file is of correct file type
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/api/upload', methods=['GET', 'POST'])
+@app.route('/api/upload', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
         # check if the post request has the file part
         
+        
         if 'file' not in request.files:
+            # flash('No file given')
+            print('No file given')
             # flash('No file given')
             print('No file given')
             return redirect(request.url)
         
+        
         file = request.files['file']
+
 
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == '':
             # flash('No selected file')
             print('No selected file')
+            # flash('No selected file')
+            print('No selected file')
             return redirect(request.url)
+        
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            print(file_path)
+            file.save(file_path)
+            
+            # use models here
+            result = analyze_image(file_path)
+            print(result)
+            return jsonify(result)
+
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             print(file_path)
             file.save(file_path)
@@ -137,10 +168,18 @@ def analyze_images():
 
 app.add_url_rule(
     "/api/upload", endpoint="download_file", build_only=True
+    "/api/upload", endpoint="download_file", build_only=True
 )
 
 @app.route('/api/openai-call', methods=['POST'])
 def getAPICall():
+    if(is_Residential):
+        prompt = "Make a detailed value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
+    else:
+        prompt = prompt = "Make a detailed value proposition given these parameters: type of building: " + str(store_Type) + ", total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
+
+    print(prompt)
+
     if(is_Residential):
         prompt = "Make a detailed value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
     else:
@@ -156,9 +195,13 @@ def getAPICall():
         temperature = 1
     )
     result = []
+    result = []
     for choice in completion.choices:
         text = choice.text.replace('\n', '')
         print(choice.text)
+        result.append(text)
+    
+    return jsonify({"result": result})
         result.append(text)
     
     return jsonify({"result": result})
