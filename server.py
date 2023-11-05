@@ -5,7 +5,7 @@ from fileinput import filename
 import random
 import os
 from dotenv import load_dotenv
-# from model import analyze_image
+# from model import analyze_image, classify_image
 import openai
 app = Flask(__name__)
 
@@ -17,8 +17,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 is_Residential = True
-num_Bathrooms = 3
-num_Bedrooms = 4
 sq_Feet = 2500
 location = "Garland, TX"
 age = 24
@@ -55,7 +53,6 @@ def allowed_file(filename):
 
 @app.route('/api/upload', methods=['GET', 'POST'])
 def upload_file():
-    print(request)
     if request.method == 'POST':
         # check if the post request has the file part
         
@@ -79,12 +76,11 @@ def upload_file():
             print(file_path)
             file.save(file_path)
             
+            # use models here
             result = analyze_image(file_path)
             print(result)
             return jsonify(result)
-            # use models here
-            
-            return redirect("/")
+
     return '''
     <!doctype html>
     <title>Upload new File</title>
@@ -94,12 +90,44 @@ def upload_file():
       <input type=submit value=Upload>
     </form>
     '''
+
+@app.route('/api/analyze', methods=['POST'])    
+def analyze_images():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        
+        if 'file' not in request.files:
+            # flash('No file given')
+            print('No file given')
+            return redirect(request.url)
+        
+        file = request.files['file']
+
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            # flash('No selected file')
+            print('No selected file')
+            return redirect(request.url)
+        
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            print(file_path)
+            file.save(file_path)
+            
+            # use models here
+            result = analyze_image(file_path)
+            print(result)
+            return jsonify(result)
+
+
 app.add_url_rule(
     "/api/upload", endpoint="download_file", build_only=True
 )
 
 if(is_Residential):
-    prompt = "Make a professional value proposition given these parameters: number of bathrooms: " + str(num_Bathrooms) + ", num of bedrooms: " + str(num_Bedrooms) + ", total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
+    prompt = "Make a professional value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
 else:
     prompt = prompt = "Make a detailed value proposition given these parameters: commercial building, total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
 

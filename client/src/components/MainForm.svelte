@@ -2,7 +2,15 @@
   // import Dropzone from 'svelte-file-dropzone/Dropzone.svelte'
   import PopupButton from './PopupButton.svelte'
   let currImage: string, fileInput
-  let ageInput: HTMLInputElement, zipInput: string
+  let ageInput: HTMLInputElement,
+    zipInput: HTMLInputElement,
+    sq_feetInput: HTMLInputElement
+
+  let buttonPressed = false
+
+  function pressFirstButton() {
+    buttonPressed = true
+  }
 
   // let files = {
   //   accepted: [],
@@ -37,29 +45,27 @@
   let location = ' '
 </script>
 
-<PopupButton />
-
 <main>
-  <form action="/api/upload" method="POST" enctype="multipart/form-data">
-    {#if currImage}
-      <img width="128" src={currImage} alt="Real Estate Property" />
-    {:else}
-      <img width="128" class="avatar" src="/building_icon.png" alt="" />
-    {/if}
+  <!-- <form action="/api/upload" method="POST" enctype="multipart/form-data"> -->
+  {#if currImage}
+    <img width="128" src={currImage} alt="Real Estate Property" />
+  {:else}
+    <img width="128" class="avatar" src="/building_icon.png" alt="" />
+  {/if}
 
-    <input
-      type="file"
-      accept=".jpg, .jpeg, .png"
-      name="file"
-      on:change={(e) => onFileSelected(e)}
-      bind:this={fileInput}
-    />
+  <input
+    type="file"
+    accept=".jpg, .jpeg, .png"
+    name="file"
+    on:change={(e) => onFileSelected(e)}
+    bind:this={fileInput}
+  />
 
-    <!-- <button id="uploadImageArea" type="button" on:click={fileInput.click()}>
+  <!-- <button id="uploadImageArea" type="button" on:click={fileInput.click()}>
       Click to upload images</button
     > -->
 
-    <!-- <Dropzone
+  <!-- <Dropzone
       containerClasses={'dropzone'}
       containerStyles={'background:none;'}
       on:drop={handleFilesSelect}
@@ -68,16 +74,42 @@
       inputElement={fileInput}
     /> -->
 
-    <!-- <div id="otherFieldsContainer">
+  <!-- <div id="otherFieldsContainer">
       <input type="number" placeholder="Age of Property" bind:this={ageInput} />
       <input type="text" placeholder="Zip Code" />
     </div> -->
 
-    <div id="submitContainer">
-      <input type="submit" value="Upload" />
-    </div>
-  </form>
+  <div id="submitContainer">
+    <!-- <input type="submit" value="Upload" /> -->
+    <button
+      on:click={async () => {
+        const formData = new FormData()
+        formData.append('file', fileInput.files[0])
+        pressFirstButton()
+        try {
+          const response = await fetch('/api/analyze', {
+            method: 'POST',
+            body: formData,
+          })
+
+          if (response.ok) {
+            // Handle a successful response here
+          } else {
+            // Handle an error response here
+            console.error('Error:', response.statusText)
+          }
+        } catch (err) {
+          console.error('Error:', err)
+        }
+      }}
+    >
+      Upload
+    </button>
+  </div>
+  <!-- </form> -->
 </main>
+
+<PopupButton />
 
 <style>
   form {
