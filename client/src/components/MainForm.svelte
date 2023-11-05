@@ -1,28 +1,40 @@
 <script lang="ts">
-  import Dropzone from 'svelte-file-dropzone/Dropzone.svelte'
+  // import Dropzone from 'svelte-file-dropzone/Dropzone.svelte'
   import PopupButton from './PopupButton.svelte'
   let currImage: string, fileInput
   let ageInput: HTMLInputElement, zipInput: string
 
-  let files = {
-    accepted: [],
-    rejected: [],
-  }
+  // let files = {
+  //   accepted: [],
+  //   rejected: [],
+  // }
 
-  function handleFilesSelect(e) {
-    const { acceptedFiles, fileRejections } = e.detail
-    files.accepted = [...files.accepted, ...acceptedFiles]
-    files.rejected = [...files.rejected, ...fileRejections]
-    // console.log(files.accepted, files.rejected)
+  // function handleFilesSelect(e) {
+  //   console.log(e)
+  //   const { acceptedFiles, fileRejections } = e.detail
+  //   files.accepted = [...files.accepted, ...acceptedFiles]
+  //   files.rejected = [...files.rejected, ...fileRejections]
+  //   // console.log(files.accepted, files.rejected)
 
-    // updates the image preview
-    let image = files.accepted[files.accepted.length - 1]
+  //   // updates the image preview
+  //   let image = files.accepted[files.accepted.length - 1]
+  //   let reader = new FileReader()
+  //   reader.readAsDataURL(image)
+  //   reader.onload = (e) => {
+  //     currImage = e.target.result as string
+  //   }
+  // }
+
+  const onFileSelected = (e) => {
+    let image = e.target.files[0]
     let reader = new FileReader()
     reader.readAsDataURL(image)
     reader.onload = (e) => {
       currImage = e.target.result as string
     }
   }
+
+  let location = ' '
 </script>
 
 <PopupButton />
@@ -35,14 +47,26 @@
       <img width="128" class="avatar" src="/building_icon.png" alt="" />
     {/if}
 
-    <Dropzone
+    <input
+      type="file"
+      accept=".jpg, .jpeg, .png"
+      name="file"
+      on:change={(e) => onFileSelected(e)}
+      bind:this={fileInput}
+    />
+
+    <!-- <button id="uploadImageArea" type="button" on:click={fileInput.click()}>
+      Click to upload images</button
+    > -->
+
+    <!-- <Dropzone
       containerClasses={'dropzone'}
       containerStyles={'background:none;'}
       on:drop={handleFilesSelect}
       accept={'.jpg, .jpeg, .png'}
       disableDefaultStyles={true}
       inputElement={fileInput}
-    />
+    /> -->
 
     <!-- <div id="otherFieldsContainer">
       <input type="number" placeholder="Age of Property" bind:this={ageInput} />
@@ -58,6 +82,16 @@
 <style>
   form {
     text-align: center;
+  }
+
+  #uploadImageArea {
+    background: none;
+    color: #ddd;
+    border: 0.25rem dashed #ddd;
+    border-radius: 5px;
+    width: 100%;
+    height: 5rem;
+    cursor: pointer;
   }
 
   .dropzone {

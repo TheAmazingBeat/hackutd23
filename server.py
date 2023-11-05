@@ -5,7 +5,7 @@ from fileinput import filename
 import random
 import os
 from dotenv import load_dotenv
-from model import analyze_image, classify_image
+# from model import analyze_image
 import openai
 app = Flask(__name__)
 
@@ -55,11 +55,13 @@ def allowed_file(filename):
 
 @app.route('/api/upload', methods=['GET', 'POST'])
 def upload_file():
+    print(request)
     if request.method == 'POST':
         # check if the post request has the file part
         
         if 'file' not in request.files:
-            flash('No file given')
+            # flash('No file given')
+            print('No file given')
             return redirect(request.url)
         
         file = request.files['file']
@@ -67,12 +69,14 @@ def upload_file():
         # If the user does not select a file, the browser submits an
         # empty file without a filename.
         if file.filename == '':
-            flash('No selected file')
+            # flash('No selected file')
+            print('No selected file')
             return redirect(request.url)
         
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            print(file_path)
             file.save(file_path)
             
             result = analyze_image(file_path)

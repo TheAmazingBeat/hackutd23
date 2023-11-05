@@ -15,6 +15,10 @@ import cv2
 login(token="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")
 
 
+new_model = tf.keras.models.load_model('/models/CommercialResidentialF.h5')
+
+# Show the model architecture
+new_model.summary()
 
 # Use the Visual Question Anwering Model from HuggingFace Hub
 def analyze_image(image_path = "images/Commercial-Ext1.jpeg"):
@@ -43,7 +47,8 @@ def classify_image(image_path = "images/Commercial-Ext1.jpeg"):
     # init Justin's model
     # model_path = os.path.join('models', 'CommercialResidentialF.h5')
     model_path="models/CommercialResidentialF.h5"
-    # model = load_model(model_path)
+    model = load_model(model_path)
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
     print(tf.__version__)
     print(keras.__version__)
     image_path="images/Commercial-Ext1.jpeg"
