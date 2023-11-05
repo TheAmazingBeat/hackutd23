@@ -1,27 +1,19 @@
 <script lang="ts">
-  export let name: string
+  import MainForm from './components/MainForm.svelte'
 </script>
 
 <main>
   <div class="container">
-    <h1>Hello {name}!</h1>
-    <form action="/success" method="POST" enctype="multipart/form-data">
-      <div id="uploadImageContainer">
-        <input type="file" name="file" />
-        <input type="submit" value="Upload" />
-      </div>
-
-      <div id="otherFieldsContainer">
-        <input type="number" />
-        <input type="text" />
-      </div>
-    </form>
+    <MainForm />
   </div>
 </main>
 
 <style>
   .container {
-    margin: 1rem;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
   }
 </style>
