@@ -15,7 +15,6 @@
 
 <main>
   <div class="container">
-    <MainForm />
   
   <button on:click={callOpenAI}>Call OpenAI</button>
   </div>
