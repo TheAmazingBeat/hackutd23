@@ -16,10 +16,11 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
-is_Residential = True
+is_Residential = False
 sq_Feet = 2500
 location = "Garland, TX"
 age = 24
+store_Type = ""
 prompt = ''
 
 # Path for our main Svelte page
@@ -128,6 +129,8 @@ def analyze_images():
             sq_Feet = request.form.get('size')
             global location 
             location = request.form.get('location')
+            global store_Type 
+            store_Type = result[0]['answer']
             
             return jsonify(result)
 
@@ -139,9 +142,9 @@ app.add_url_rule(
 @app.route('/api/openai-call', methods=['POST'])
 def getAPICall():
     if(is_Residential):
-        prompt = "Make a professional value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
+        prompt = "Make a detailed value proposition given these parameters: total square feet: " + str(sq_Feet) + ", located in: " + location + ", age: " + str(age)
     else:
-        prompt = prompt = "Make a detailed value proposition given these parameters: commercial building, total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
+        prompt = prompt = "Make a detailed value proposition given these parameters: type of building: " + str(store_Type) + ", total square feet: " + str(sq_Feet) + ", location: " + str(location) + ", age: " + str(age)
 
     print(prompt)
 
@@ -149,7 +152,7 @@ def getAPICall():
     completion = openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt = prompt,
-        max_tokens = 1000,
+        max_tokens = 500,
         temperature = 1
     )
     result = []

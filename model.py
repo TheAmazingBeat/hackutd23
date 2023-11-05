@@ -6,6 +6,7 @@ import os
 import tensorflow as tf
 from tensorflow import keras
 from keras.models import load_model
+from dotenv import load_dotenv
 # from keras.preprocessing.image import load_img
 # from keras.applications.vgg16 import preprocess_input
 import numpy as np
