@@ -167,9 +167,7 @@ def analyze_images():
 
 
 app.add_url_rule(
-    "/api/upload", endpoint="download_file", build_only=True
-    "/api/upload", endpoint="download_file", build_only=True
-)
+    "/api/upload", endpoint="download_file", build_only=True)
 
 @app.route('/api/openai-call', methods=['POST'])
 def getAPICall():
@@ -199,9 +197,6 @@ def getAPICall():
     for choice in completion.choices:
         text = choice.text.replace('\n', '')
         print(choice.text)
-        result.append(text)
-    
-    return jsonify({"result": result})
         result.append(text)
     
     return jsonify({"result": result})
