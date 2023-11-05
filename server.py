@@ -5,7 +5,7 @@ from fileinput import filename
 import random
 import os
 from dotenv import load_dotenv
-# from model import analyze_image
+from model import analyze_image, classify_image
 import openai
 app = Flask(__name__)
 
